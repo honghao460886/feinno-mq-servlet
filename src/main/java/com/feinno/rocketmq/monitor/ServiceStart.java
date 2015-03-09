@@ -9,10 +9,16 @@
 
 package com.feinno.rocketmq.monitor;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.PosixParser;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
+import com.feinno.rocketmq.monitor.data.DataCollectionService;
 import com.sun.jersey.spi.container.servlet.ServletContainer;
 
 
@@ -29,7 +35,31 @@ import com.sun.jersey.spi.container.servlet.ServletContainer;
  */
 public class ServiceStart {
     public static void main(String[] args) throws Exception {
-        int port = 8081;
+        buildCommandlineOptions(args);
+    }
+
+
+    private static void buildCommandlineOptions(String[] args) throws ParseException, Exception {
+        CommandLine commandLine = null;
+        Options options = new Options();
+        Option opt = new Option("p", "port", true, "jetty port");
+        options.addOption(opt);
+        commandLine = new PosixParser().parse(options, args);
+        if (commandLine.hasOption('p')) {
+            int port = Integer.parseInt(commandLine.getOptionValue('p'));
+            // jetty server start
+            startJettyServer(port);
+            // data collection service start
+            DataCollectionService.start();
+        }
+        else {
+            System.err.println("please input jetty port");
+            System.exit(-1);
+        }
+    }
+
+
+    private static void startJettyServer(int port) throws Exception {
         Server server = new Server(port);
         ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
         context.setContextPath("/");
@@ -41,6 +71,4 @@ public class ServiceStart {
         context.addServlet(sh, "/*");
         server.start();
     }
-    
-    
 }

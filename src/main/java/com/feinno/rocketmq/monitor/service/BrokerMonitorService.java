@@ -5,7 +5,7 @@
  * Date:Feb 28, 20155:31:01 PM
  * Copyright (c) 2015, honghao@feinno.com All Rights Reserved.
  *
-*/
+ */
 
 package com.feinno.rocketmq.monitor.service;
 
@@ -21,15 +21,17 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.rocketmq.tools.admin.DefaultMQAdminExt;
 import com.feinno.rocketmq.monitor.common.WMQAdminExtHelper;
 
+
 /**
  * ClassName:BrokerService <br/>
  * Function: TODO ADD FUNCTION. <br/>
- * Reason:	 TODO ADD REASON. <br/>
- * Date:     Feb 28, 2015 5:31:01 PM <br/>
- * @author   honghao
- * @version  
- * @since    JDK 1.7
- * @see 	 
+ * Reason: TODO ADD REASON. <br/>
+ * Date: Feb 28, 2015 5:31:01 PM <br/>
+ * 
+ * @author honghao
+ * @version
+ * @since JDK 1.7
+ * @see
  */
 @Path("/broker")
 public class BrokerMonitorService extends AbstractMonitorService {
@@ -37,7 +39,8 @@ public class BrokerMonitorService extends AbstractMonitorService {
     @GET
     @Path("/status/{namesrvaddr}/{brokeraddr}/")
     @Produces(value = MediaType.APPLICATION_JSON)
-    public String getClusterList(@PathParam("namesrvaddr") String namesrvaddr, @PathParam("brokeraddr") String brokeraddr) throws Exception {
+    public String getClusterList(@PathParam("namesrvaddr") String namesrvaddr,
+            @PathParam("brokeraddr") String brokeraddr) throws Exception {
         DefaultMQAdminExt defaultMQAdminExt = getDefaultMQAdminExt();
         try {
             defaultMQAdminExt.setNamesrvAddr(namesrvaddr);
@@ -54,4 +57,3 @@ public class BrokerMonitorService extends AbstractMonitorService {
         }
     }
 }
-
