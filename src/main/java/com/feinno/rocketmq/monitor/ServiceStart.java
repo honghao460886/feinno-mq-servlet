@@ -38,7 +38,6 @@ public class ServiceStart {
         buildCommandlineOptions(args);
     }
 
-
     private static void buildCommandlineOptions(String[] args) throws ParseException, Exception {
         CommandLine commandLine = null;
         Options options = new Options();
