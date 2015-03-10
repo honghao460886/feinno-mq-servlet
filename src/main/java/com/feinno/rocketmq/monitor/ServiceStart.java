@@ -17,6 +17,11 @@ import org.apache.commons.cli.PosixParser;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.joran.JoranConfigurator;
 
 import com.feinno.rocketmq.monitor.data.DataCollectionService;
 import com.sun.jersey.spi.container.servlet.ServletContainer;
@@ -34,6 +39,8 @@ import com.sun.jersey.spi.container.servlet.ServletContainer;
  * @see
  */
 public class ServiceStart {
+    
+    private static Logger LOGGER; 
     public static void main(String[] args) throws Exception {
         buildCommandlineOptions(args);
     }
@@ -46,10 +53,20 @@ public class ServiceStart {
         commandLine = new PosixParser().parse(options, args);
         if (commandLine.hasOption('p')) {
             int port = Integer.parseInt(commandLine.getOptionValue('p'));
+            System.out.println("initialize logback......");
+            LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+            JoranConfigurator configurator = new JoranConfigurator();
+            configurator.setContext(lc);
+            lc.reset();
+            configurator.doConfigure("logback.xml");
+            LOGGER = LoggerFactory.getLogger(ServiceStart.class);
+            LOGGER.error("initialize logback finished......");
             // jetty server start
             startJettyServer(port);
+            LOGGER.error("startJettyServer start finished, http port is : {}", port);
             // data collection service start
             DataCollectionService.start();
+            LOGGER.error("DataCollectionService start finished.");
         }
         else {
             System.err.println("please input jetty port");

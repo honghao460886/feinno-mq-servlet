@@ -17,6 +17,9 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.rocketmq.tools.admin.DefaultMQAdminExt;
 import com.feinno.rocketmq.monitor.common.WMQAdminExtHelper;
@@ -36,6 +39,7 @@ import com.feinno.rocketmq.monitor.common.WMQAdminExtHelper;
 @Path("/broker")
 public class BrokerMonitorService extends AbstractMonitorService {
 
+    private final static Logger LOGGER = LoggerFactory.getLogger(BrokerMonitorService.class);
     @GET
     @Path("/status/{namesrvaddr}/{brokeraddr}/")
     @Produces(value = MediaType.APPLICATION_JSON)
@@ -50,6 +54,7 @@ public class BrokerMonitorService extends AbstractMonitorService {
             return JSON.toJSONString(map);
         }
         catch (Exception ex) {
+            LOGGER.error("BrokerMonitorService.getClusterList error :{}", ex);
             throw ex;
         }
         finally {

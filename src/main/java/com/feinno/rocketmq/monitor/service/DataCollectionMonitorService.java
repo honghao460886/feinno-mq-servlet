@@ -22,6 +22,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.alibaba.fastjson.JSON;
 import com.feinno.rocketmq.monitor.data.MQTotal;
 import com.feinno.rocketmq.monitor.data.MQTps;
@@ -42,8 +45,9 @@ import com.feinno.rocketmq.monitor.database.DatabaseManager;
  * @see
  */
 @Path("/data")
-public class DataCollectionService extends AbstractMonitorService {
+public class DataCollectionMonitorService extends AbstractMonitorService {
 
+    private final static Logger LOGGER = LoggerFactory.getLogger(DataCollectionMonitorService.class);
     @Context
     HttpServletRequest request;
     
@@ -69,6 +73,7 @@ public class DataCollectionService extends AbstractMonitorService {
             }
             return JSON.toJSONString(list);
         } catch (Exception ex) {
+            LOGGER.error("DataCollectionMonitorService.getTotal error :{}", ex);
             throw new Exception("this is getTotal data, please check your params, try again!");
         }
     }
@@ -95,6 +100,7 @@ public class DataCollectionService extends AbstractMonitorService {
             }
             return JSON.toJSONString(list);
         } catch (Exception ex) {
+            LOGGER.error("DataCollectionMonitorService.getTps error :{}", ex);
             throw new Exception("this is getTPS data, please check your params, try again!");
         }
     }

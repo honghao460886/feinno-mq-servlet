@@ -19,6 +19,9 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.rocketmq.tools.admin.DefaultMQAdminExt;
 import com.feinno.rocketmq.monitor.common.WMQAdminExtHelper;
@@ -38,6 +41,7 @@ import com.feinno.rocketmq.monitor.common.WMQAdminExtHelper;
 @Path("/cluster")
 public class ClusterMonitorService extends AbstractMonitorService {
 
+    private final static Logger LOGGER = LoggerFactory.getLogger(ClusterMonitorService.class);
     @GET
     @Path("/list/{namesrvaddr}")
     @Produces(value = MediaType.APPLICATION_JSON)
@@ -51,6 +55,7 @@ public class ClusterMonitorService extends AbstractMonitorService {
             return JSON.toJSONString(list);
         }
         catch (Exception ex) {
+            LOGGER.error("ClusterMonitorService.getClusterList error :{}", ex);
             throw ex;
         }
         finally {

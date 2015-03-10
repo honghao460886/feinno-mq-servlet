@@ -19,6 +19,9 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.rocketmq.tools.admin.DefaultMQAdminExt;
 import com.feinno.rocketmq.monitor.common.WMQAdminExtHelper;
@@ -35,6 +38,7 @@ import com.feinno.rocketmq.monitor.common.WMQAdminExtHelper;
  */
 @Path("/topic")
 public class TopicMonitorService extends AbstractMonitorService {
+    private final static Logger LOGGER = LoggerFactory.getLogger(TopicMonitorService.class);
     @GET
     @Path("/list/{namesrvaddr}")
     @Produces(value = MediaType.APPLICATION_JSON)
@@ -48,6 +52,7 @@ public class TopicMonitorService extends AbstractMonitorService {
             return JSON.toJSONString(list);
         }
         catch (Exception ex) {
+            LOGGER.error("TopicMonitorService.queryClusterList error :{}", ex);
             throw ex;
         }
         finally {
@@ -67,6 +72,7 @@ public class TopicMonitorService extends AbstractMonitorService {
             return json;
         }
         catch (Exception ex) {
+            LOGGER.error("TopicMonitorService.queryTopicRoute error :{}", ex);
             throw ex;
         }
         finally {

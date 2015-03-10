@@ -26,6 +26,9 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.TreeSet;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.alibaba.rocketmq.client.exception.MQBrokerException;
 import com.alibaba.rocketmq.client.exception.MQClientException;
 import com.alibaba.rocketmq.common.protocol.body.ClusterInfo;
@@ -37,6 +40,7 @@ import com.alibaba.rocketmq.remoting.exception.RemotingTimeoutException;
 import com.alibaba.rocketmq.tools.admin.DefaultMQAdminExt;
 import com.feinno.rocketmq.monitor.database.Database;
 import com.feinno.rocketmq.monitor.database.DatabaseManager;
+import com.mysql.jdbc.log.LogFactory;
 
 
 /**
@@ -52,6 +56,7 @@ import com.feinno.rocketmq.monitor.database.DatabaseManager;
  */
 public class DataCollectionService {
     private final static Timer timer = new Timer("MQDataCollection_Thread", true);
+    private final static Logger LOGGER = LoggerFactory.getLogger(DataCollectionService.class);
 
 
     public static void start() {
@@ -63,7 +68,7 @@ public class DataCollectionService {
                     totalStatistics();
                 }
                 catch (Exception e) {
-                    e.printStackTrace();
+                    LOGGER.error("totalStatistics error : {}", e);
                 }
             }
         }, 0, 24 * 60 * 1000);
@@ -76,7 +81,7 @@ public class DataCollectionService {
                     tpsStatistics();
                 }
                 catch (Exception e) {
-                    e.printStackTrace();
+                    LOGGER.error("tpsStatistics error : {}", e);
                 }
             }
         }, 0, 10 * 1000);
@@ -96,7 +101,7 @@ public class DataCollectionService {
                 int ret =
                         db.executeNonQuery(sql, tps.getDate(), tps.getNameServerAddr(), tps.getClusterName(),
                             tps.getBrokerId(), tps.getInTps(), tps.getOutTps());
-                System.out.println("insert tps ret :" + ret);
+                LOGGER.info("insert tps ret :" + ret);
             }
         }
 
@@ -158,6 +163,7 @@ public class DataCollectionService {
             }
             return list;
         } catch (Exception ex) {
+            LOGGER.error("data collection getTps error : {}", ex);
             throw ex;
         }
         finally {
@@ -179,7 +185,7 @@ public class DataCollectionService {
                         db.executeNonQuery(sql, total.getDate(), total.getNameServerAddr(),
                             total.getClusterName(), total.getBrokerId(), total.getInTotal(),
                             total.getOutTotal());
-                System.out.println("insert total ret :" + ret);
+                LOGGER.info("insert total ret :" + ret);
             }
         }
     }
@@ -253,6 +259,9 @@ public class DataCollectionService {
                 }
             }
             return list;
+        } catch (Exception ex) {
+            LOGGER.error("data collection getTotal error : {}", ex);
+            throw ex;
         }
         finally {
             defaultMQAdminExt.shutdown();

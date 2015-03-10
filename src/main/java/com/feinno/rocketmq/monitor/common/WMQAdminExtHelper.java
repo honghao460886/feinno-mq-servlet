@@ -13,10 +13,13 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.Map.Entry;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.alibaba.rocketmq.client.exception.MQBrokerException;
 import com.alibaba.rocketmq.client.exception.MQClientException;
@@ -50,6 +53,7 @@ import com.feinno.rocketmq.monitor.topic.bean.WTopicListKeys;
  */
 public class WMQAdminExtHelper {
 
+    private final static Logger LOGGER = LoggerFactory.getLogger(WMQAdminExtHelper.class);
     /**
      * queryClusterInfo:(这里用一句话描述这个方法的作用). <br/>
      * TODO(这里描述这个方法适用条件 – 可选).<br/>
@@ -137,22 +141,23 @@ public class WMQAdminExtHelper {
                             OutTotalToday =
                                     Long.parseLong(msgGetTotalTodayNow)
                                             - Long.parseLong(msgGetTotalTodayMorning);
+                            Map<String, String> map = new HashMap<String, String>();
+                            map.put(WClusterListKeys.CLUSTER_NAME, clusterName);
+                            map.put(WClusterListKeys.BROKER_NAME, brokerName);
+                            map.put(WClusterListKeys.BROKER_ID, String.valueOf(next1.getKey().longValue()));
+                            map.put(WClusterListKeys.BROKER_ADDR, next1.getValue());
+                            map.put(WClusterListKeys.VERTION, version);
+                            map.put(WClusterListKeys.IN_TPS, String.valueOf((int) in));
+                            map.put(WClusterListKeys.OUT_TPS, String.valueOf((int) out));
+                            map.put(WClusterListKeys.IN_TOTAL_YEST, String.valueOf(InTotalYest));
+                            map.put(WClusterListKeys.OUT_TOTAL_YEST, String.valueOf(OutTotalYest));
+                            map.put(WClusterListKeys.IN_TOTAL_TODAY, String.valueOf(InTotalToday));
+                            map.put(WClusterListKeys.OUT_TOTAL_TODAY, String.valueOf(OutTotalToday));
+                            list.add(map);
                         }
                         catch (Exception e) {
+                            LOGGER.error("query cluster info fetchBrokerRuntimeStats error :{}", e);
                         }
-                        Map<String, String> map = new HashMap<String, String>();
-                        map.put(WClusterListKeys.CLUSTER_NAME, clusterName);
-                        map.put(WClusterListKeys.BROKER_NAME, brokerName);
-                        map.put(WClusterListKeys.BROKER_ID, String.valueOf(next1.getKey().longValue()));
-                        map.put(WClusterListKeys.BROKER_ADDR, next1.getValue());
-                        map.put(WClusterListKeys.VERTION, version);
-                        map.put(WClusterListKeys.IN_TPS, String.valueOf((int) in));
-                        map.put(WClusterListKeys.OUT_TPS, String.valueOf((int) out));
-                        map.put(WClusterListKeys.IN_TOTAL_YEST, String.valueOf(InTotalYest));
-                        map.put(WClusterListKeys.OUT_TOTAL_YEST, String.valueOf(OutTotalYest));
-                        map.put(WClusterListKeys.IN_TOTAL_TODAY, String.valueOf(InTotalToday));
-                        map.put(WClusterListKeys.OUT_TOTAL_TODAY, String.valueOf(OutTotalToday));
-                        list.add(map);
                     }
                 }
             }
@@ -179,6 +184,7 @@ public class WMQAdminExtHelper {
                 groupList = defaultMQAdminExt.queryTopicConsumeByWho(topic);
             }
             catch (Exception e) {
+                LOGGER.error("queryTopicList's findTopicBelongToWhichCluster error :{}", e);
             }
 
             if (null == groupList || groupList.getGroupList().isEmpty()) {
@@ -214,7 +220,6 @@ public class WMQAdminExtHelper {
                 return next.getKey();
             }
         }
-
         return null;
     }
 
