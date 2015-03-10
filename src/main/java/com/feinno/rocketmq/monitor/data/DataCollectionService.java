@@ -84,7 +84,7 @@ public class DataCollectionService {
                     LOGGER.error("tpsStatistics error : {}", e);
                 }
             }
-        }, 0, 10 * 1000);
+        }, 0, 3 * 1000);
 
     }
 
