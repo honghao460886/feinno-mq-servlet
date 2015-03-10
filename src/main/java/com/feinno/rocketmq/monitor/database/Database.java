@@ -44,7 +44,7 @@ import com.sun.rowset.CachedRowSetImpl;
  * <p>
  * C3p0的Properties及TomcatPool的Properties请参考相关文档。<br>
  * 
- * @author 高磊 gaolei@feinno.com
+ * @author honghao@feinno.com
  */
 public class Database implements Operation {
     private static final Logger LOGGER = LoggerFactory.getLogger(Database.class);

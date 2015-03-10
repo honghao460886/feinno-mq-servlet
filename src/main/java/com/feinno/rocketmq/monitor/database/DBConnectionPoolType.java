@@ -6,7 +6,7 @@ package com.feinno.rocketmq.monitor.database;
  * <b>功能：</b> C3p0: c3p0连接池 <br/>
  * TomcatPool: tomcat连接池 <br/>
  * 
- * @author lichunlei
+ * @author honghao@feinno.com
  * 
  */
 public enum DBConnectionPoolType

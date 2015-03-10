@@ -26,7 +26,7 @@ import java.util.Map;
  * 根据名称获取列序号也是一样的，获取的都是从1开始的编号；</br>
  * 这么做是为了和JDBC保持一致</br> 
  * 
- * @author 黄湘龙 huangxianglong@feinno.com
+ * @author honghao@feinno.com
  */
 public class DataTable {
 	private static final DataColumn[] EMPTY_COLUMNS = new DataColumn[0];

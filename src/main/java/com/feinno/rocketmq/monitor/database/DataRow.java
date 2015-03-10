@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
  * 。。。
  * </code></pre>
  * 
- * @author 黄湘龙 huangxianglong@feinno.com
+ * @author honghao@feinno.com
  */
 public class DataRow {
 	private static final Logger LOGGER = LoggerFactory.getLogger(DataRow.class);

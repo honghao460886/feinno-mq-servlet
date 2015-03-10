@@ -21,7 +21,7 @@ package com.feinno.rocketmq.monitor.database;
  * </code></pre>
  * 
  * 
- * @author 黄湘龙 huangxianglong@feinno.com
+ * @author honghao@feinno.com
  */
 
 public class DataColumn

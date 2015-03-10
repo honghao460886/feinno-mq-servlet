@@ -26,7 +26,7 @@ import com.sun.rowset.CachedRowSetImpl;
 /**
  * 数据库帮助类+
  * 
- * @author 高磊 gaolei@feinno.com
+ * @author honghao@feinno.com
  */
 public class DatabaseHelper
 {
