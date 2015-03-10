@@ -44,10 +44,12 @@ public class DatabaseManager {
             e.printStackTrace();
         }
     }
-
+    
 
     public static Database getDatabase() throws Exception {
-        db = new Database(dbName, prop);
+        if (db == null) {
+            db = new Database(dbName, prop);
+        }
         return db;
     }
 }
