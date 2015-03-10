@@ -249,6 +249,9 @@ public class DataCollectionService {
                             calendar.setTime(date);
                             calendar.add(Calendar.DAY_OF_MONTH, -1);
                             date = calendar.getTime();
+                            calendar.set(Calendar.HOUR, -12);
+                            calendar.set(Calendar.MINUTE, 0);
+                            calendar.set(Calendar.SECOND, 0);
                             total.setDate(date);
                             total.setInTotal(InTotalYest);
                             total.setNameServerAddr(namesrv);
