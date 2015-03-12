@@ -25,71 +25,69 @@ import java.util.Date;
  */
 public class MQTotal {
 
-    private Date date = new Date();   // yyyy-mm-dd
+    private Date yest = new Date();   // yyyy-mm-dd
+    private Date today = new Date();   // yyyy-mm-dd
     private String clusterName = "";
     private String nameServerAddr = "";
     private int brokerId;
-    private long inTotal = 0l;
-    private long outTotal = 0l;
-
-
+    private long inTotalYest = 0l;
+    private long outTotalYest = 0l;
+    private long inTotalToday = 0l;
+    private long outTotalToday = 0l;
+    
+    public Date getYest() {
+        return yest;
+    }
+    public void setYest(Date yest) {
+        this.yest = yest;
+    }
+    public Date getToday() {
+        return today;
+    }
+    public void setToday(Date today) {
+        this.today = today;
+    }
     public String getClusterName() {
         return clusterName;
     }
-
-
     public void setClusterName(String clusterName) {
         this.clusterName = clusterName;
     }
-
-
-    public Date getDate() {
-        return date;
-    }
-
-
-    public void setDate(Date date) {
-        this.date = date;
-    }
-
-
     public String getNameServerAddr() {
         return nameServerAddr;
     }
-
-
     public void setNameServerAddr(String nameServerAddr) {
         this.nameServerAddr = nameServerAddr;
     }
-
-
     public int getBrokerId() {
         return brokerId;
     }
-
-
     public void setBrokerId(int brokerId) {
         this.brokerId = brokerId;
     }
-
-
-    public long getInTotal() {
-        return inTotal;
+    public long getInTotalYest() {
+        return inTotalYest;
     }
-
-
-    public void setInTotal(long inTotal) {
-        this.inTotal = inTotal;
+    public void setInTotalYest(long inTotalYest) {
+        this.inTotalYest = inTotalYest;
     }
-
-
-    public long getOutTotal() {
-        return outTotal;
+    public long getOutTotalYest() {
+        return outTotalYest;
     }
-
-
-    public void setOutTotal(long outTotal) {
-        this.outTotal = outTotal;
+    public void setOutTotalYest(long outTotalYest) {
+        this.outTotalYest = outTotalYest;
     }
-
+    public long getInTotalToday() {
+        return inTotalToday;
+    }
+    public void setInTotalToday(long inTotalToday) {
+        this.inTotalToday = inTotalToday;
+    }
+    public long getOutTotalToday() {
+        return outTotalToday;
+    }
+    public void setOutTotalToday(long outTotalToday) {
+        this.outTotalToday = outTotalToday;
+    }
+    
 }

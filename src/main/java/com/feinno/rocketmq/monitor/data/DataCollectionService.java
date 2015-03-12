@@ -83,7 +83,40 @@ public class DataCollectionService {
                 }
             }
         }, 100, 5 * 1000);
+        
+        timer.schedule(new TimerTask() {
 
+            @Override
+            public void run() {
+                try {
+                    totalRealTimeStatistics();
+                }
+                catch (Exception e) {
+                    LOGGER.warn("tpsStatistics error : {}", e);
+                }
+            }
+        }, 100, 5 * 1000);
+
+    }
+
+
+    private static void totalRealTimeStatistics() throws Exception {
+        
+        String namesrvaddrs = getNameSrvAddr();
+        for (String namesrv : namesrvaddrs.split(";")) {
+            List<MQTotal> list = getTotal(namesrv);
+            for (MQTotal total : list) {
+                String sql =
+                        "insert into MQTotalRealTimeByBroker (Date, NameServerAddr, ClusterName, BrokerID, InTotal, OutTotal) values(?, ?, ?, ?, ?, ?)";
+                Database db = DatabaseManager.getDatabase();
+                int ret =
+                        db.executeNonQuery(sql, total.getToday(), total.getNameServerAddr(),
+                            total.getClusterName(), total.getBrokerId(), total.getInTotalToday(),
+                            total.getOutTotalToday());
+                LOGGER.info("insert total today ret :" + ret);
+            }
+        }
+        
     }
 
 
@@ -180,9 +213,9 @@ public class DataCollectionService {
                         "insert into MQTotalByBroker (Date, NameServerAddr, ClusterName, BrokerID, InTotal, OutTotal) values(?, ?, ?, ?, ?, ?)";
                 Database db = DatabaseManager.getDatabase();
                 int ret =
-                        db.executeNonQuery(sql, total.getDate(), total.getNameServerAddr(),
-                            total.getClusterName(), total.getBrokerId(), total.getInTotal(),
-                            total.getOutTotal());
+                        db.executeNonQuery(sql, total.getYest(), total.getNameServerAddr(),
+                            total.getClusterName(), total.getBrokerId(), total.getInTotalYest(),
+                            total.getOutTotalYest());
                 LOGGER.info("insert total ret :" + ret);
             }
         }
@@ -222,8 +255,10 @@ public class DataCollectionService {
                                 brokerData.getBrokerAddrs().entrySet().iterator();
                         while (itAddr.hasNext()) {
                             Map.Entry<Long, String> next1 = itAddr.next();
-                            long InTotalYest = 0;
-                            long OutTotalYest = 0;
+                            long inTotalYest = 0;
+                            long outTotalYest = 0;
+                            long inTotalToday = 0;
+                            long outTotalToday = 0;
                             KVTable kvTable = defaultMQAdminExt.fetchBrokerRuntimeStats(next1.getValue());
                             String msgPutTotalYesterdayMorning =
                                     kvTable.getTable().get("msgPutTotalYesterdayMorning");
@@ -233,12 +268,20 @@ public class DataCollectionService {
                                     kvTable.getTable().get("msgGetTotalYesterdayMorning");
                             String msgGetTotalTodayMorning =
                                     kvTable.getTable().get("msgGetTotalTodayMorning");
-                            InTotalYest =
+                            String msgPutTotalTodayNow = kvTable.getTable().get("msgPutTotalTodayNow");
+                            String msgGetTotalTodayNow = kvTable.getTable().get("msgGetTotalTodayNow");
+                            inTotalYest =
                                     Long.parseLong(msgPutTotalTodayMorning)
                                             - Long.parseLong(msgPutTotalYesterdayMorning);
-                            OutTotalYest =
+                            outTotalYest =
                                     Long.parseLong(msgGetTotalTodayMorning)
                                             - Long.parseLong(msgGetTotalYesterdayMorning);
+                            inTotalToday =
+                                    Long.parseLong(msgPutTotalTodayNow)
+                                            - Long.parseLong(msgPutTotalTodayMorning);
+                            outTotalToday =
+                                    Long.parseLong(msgGetTotalTodayNow)
+                                            - Long.parseLong(msgGetTotalTodayMorning);
                             MQTotal total = new MQTotal();
                             total.setBrokerId((int) next1.getKey().longValue());
                             total.setClusterName(clusterName);
@@ -250,10 +293,13 @@ public class DataCollectionService {
                             calendar.set(Calendar.MINUTE, 0);
                             calendar.set(Calendar.SECOND, 0);
                             date = calendar.getTime();
-                            total.setDate(date);
-                            total.setInTotal(InTotalYest);
+                            total.setYest(date);
+                            total.setToday(new Date());
+                            total.setInTotalYest(inTotalYest);
                             total.setNameServerAddr(namesrv);
-                            total.setOutTotal(OutTotalYest);
+                            total.setOutTotalYest(outTotalYest);
+                            total.setInTotalToday(inTotalToday);
+                            total.setOutTotalToday(outTotalToday);
                             list.add(total);
                         }
                     }

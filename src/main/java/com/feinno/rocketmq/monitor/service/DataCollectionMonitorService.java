@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import com.alibaba.fastjson.JSON;
 import com.feinno.rocketmq.monitor.data.MQTotal;
+import com.feinno.rocketmq.monitor.data.MQTotalRet;
 import com.feinno.rocketmq.monitor.data.MQTps;
 import com.feinno.rocketmq.monitor.database.DataRow;
 import com.feinno.rocketmq.monitor.database.DataTable;
@@ -60,9 +61,9 @@ public class DataCollectionMonitorService extends AbstractMonitorService {
             Date dateEnd = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(request.getParameter("dateEnd"));
             String sql = "SELECT BrokerID, ClusterName, Date, InTotal, NameServerAddr, OutTotal FROM MQTotalByBroker WHERE ClusterName = ? AND BrokerID = ? AND Date BETWEEN ? AND ?";
             DataTable datatable = DatabaseManager.getDatabase().executeTable(sql, clustername, brokerid, dateBegin, dateEnd);
-            List<MQTotal> list = new ArrayList<MQTotal>();
+            List<MQTotalRet> list = new ArrayList<MQTotalRet>();
             for (DataRow row : datatable.getRows()) {
-                MQTotal total = new MQTotal();
+                MQTotalRet total = new MQTotalRet();
                 total.setBrokerId(row.getInt("BrokerID"));
                 total.setClusterName(row.getString("ClusterName"));
                 total.setDate(row.getDateTime("Date"));
@@ -101,6 +102,33 @@ public class DataCollectionMonitorService extends AbstractMonitorService {
             return JSON.toJSONString(list);
         } catch (Exception ex) {
             LOGGER.error("DataCollectionMonitorService.getTps error :{}", ex);
+            return "";
+        }
+    }
+    
+    @GET
+    @Path("/total/details/{clustername}/{brokerid}")
+    @Produces(value = MediaType.APPLICATION_JSON)
+    public String getTotalDetails(@PathParam("clustername") String clustername, @PathParam("brokerid") String brokerid) {
+        try {
+            Date dateBegin = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(request.getParameter("dateBegin"));
+            Date dateEnd = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(request.getParameter("dateEnd"));
+            String sql = "SELECT BrokerID, ClusterName, Date, InTotal, NameServerAddr, OutTotal FROM MQTotalRealTimeByBroker WHERE ClusterName = ? AND BrokerID = ? AND Date BETWEEN ? AND ?";
+            DataTable datatable = DatabaseManager.getDatabase().executeTable(sql, clustername, brokerid, dateBegin, dateEnd);
+            List<MQTotalRet> list = new ArrayList<MQTotalRet>();
+            for (DataRow row : datatable.getRows()) {
+                MQTotalRet total = new MQTotalRet();
+                total.setBrokerId(row.getInt("BrokerID"));
+                total.setClusterName(row.getString("ClusterName"));
+                total.setDate(row.getDateTime("Date"));
+                total.setInTotal(row.getLong("InTotal"));
+                total.setNameServerAddr(row.getString("NameServerAddr"));
+                total.setOutTotal(row.getLong("OutTotal"));
+                list.add(total);
+            }
+            return JSON.toJSONString(list);
+        } catch (Exception ex) {
+            LOGGER.error("DataCollectionMonitorService.getTotal error :{}", ex);
             return "";
         }
     }
