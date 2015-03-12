@@ -54,7 +54,7 @@ public class DataCollectionMonitorService extends AbstractMonitorService {
     @GET
     @Path("/total/{clustername}/{brokerid}")
     @Produces(value = MediaType.APPLICATION_JSON)
-    public String getTotal(@PathParam("clustername") String clustername, @PathParam("brokerid") String brokerid) throws Exception {
+    public String getTotal(@PathParam("clustername") String clustername, @PathParam("brokerid") String brokerid) {
         try {
             Date dateBegin = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(request.getParameter("dateBegin"));
             Date dateEnd = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(request.getParameter("dateEnd"));
@@ -74,14 +74,14 @@ public class DataCollectionMonitorService extends AbstractMonitorService {
             return JSON.toJSONString(list);
         } catch (Exception ex) {
             LOGGER.error("DataCollectionMonitorService.getTotal error :{}", ex);
-            throw new Exception("this is getTotal data, please check your params, try again!");
+            return "";
         }
     }
     
     @GET
     @Path("/tps/{clustername}/{brokerid}")
     @Produces(value = MediaType.APPLICATION_JSON)
-    public String getTps(@PathParam("clustername") String clustername, @PathParam("brokerid") String brokerid) throws Exception {
+    public String getTps(@PathParam("clustername") String clustername, @PathParam("brokerid") String brokerid) {
         try {
             Date dateBegin = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(request.getParameter("dateBegin"));
             Date dateEnd = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(request.getParameter("dateEnd"));
@@ -101,7 +101,7 @@ public class DataCollectionMonitorService extends AbstractMonitorService {
             return JSON.toJSONString(list);
         } catch (Exception ex) {
             LOGGER.error("DataCollectionMonitorService.getTps error :{}", ex);
-            throw new Exception("this is getTPS data, please check your params, try again!");
+            return "";
         }
     }
 }

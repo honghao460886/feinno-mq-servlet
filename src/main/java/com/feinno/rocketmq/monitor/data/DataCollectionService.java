@@ -55,12 +55,13 @@ import com.mysql.jdbc.log.LogFactory;
  * @see
  */
 public class DataCollectionService {
-    private final static Timer timer = new Timer("MQDataCollection_Thread", true);
+    private final static Timer timer_total = new Timer("MQDataCollection_Total_Thread", true);
+    private final static Timer timer_tps = new Timer("MQDataCollection_Tps_Thread", true);
     private final static Logger LOGGER = LoggerFactory.getLogger(DataCollectionService.class);
 
 
     public static void start() {
-        timer.schedule(new TimerTask() {
+        timer_total.schedule(new TimerTask() {
 
             @Override
             public void run() {
@@ -68,12 +69,12 @@ public class DataCollectionService {
                     totalStatistics();
                 }
                 catch (Exception e) {
-                    LOGGER.error("totalStatistics error : {}", e);
+                    LOGGER.warn("totalStatistics error : {}", e);
                 }
             }
         }, 0, 24 * 60 * 1000);
 
-        timer.schedule(new TimerTask() {
+        timer_tps.schedule(new TimerTask() {
 
             @Override
             public void run() {
@@ -81,10 +82,10 @@ public class DataCollectionService {
                     tpsStatistics();
                 }
                 catch (Exception e) {
-                    LOGGER.error("tpsStatistics error : {}", e);
+                    LOGGER.warn("tpsStatistics error : {}", e);
                 }
             }
-        }, 0, 3 * 1000);
+        }, 100, 5 * 1000);
 
     }
 
@@ -248,10 +249,10 @@ public class DataCollectionService {
                             Date date = new Date();
                             calendar.setTime(date);
                             calendar.add(Calendar.DAY_OF_MONTH, -1);
-                            date = calendar.getTime();
                             calendar.set(Calendar.HOUR, -12);
                             calendar.set(Calendar.MINUTE, 0);
                             calendar.set(Calendar.SECOND, 0);
+                            date = calendar.getTime();
                             total.setDate(date);
                             total.setInTotal(InTotalYest);
                             total.setNameServerAddr(namesrv);

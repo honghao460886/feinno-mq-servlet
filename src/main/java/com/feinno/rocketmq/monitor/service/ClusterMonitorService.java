@@ -45,7 +45,7 @@ public class ClusterMonitorService extends AbstractMonitorService {
     @GET
     @Path("/list/{namesrvaddr}")
     @Produces(value = MediaType.APPLICATION_JSON)
-    public String getClusterList(@PathParam("namesrvaddr") String namesrvaddr) throws Exception {
+    public String getClusterList(@PathParam("namesrvaddr") String namesrvaddr) {
         DefaultMQAdminExt defaultMQAdminExt = getDefaultMQAdminExt();
         try {
             defaultMQAdminExt.setNamesrvAddr(namesrvaddr);
@@ -56,7 +56,7 @@ public class ClusterMonitorService extends AbstractMonitorService {
         }
         catch (Exception ex) {
             LOGGER.error("ClusterMonitorService.getClusterList error :{}", ex);
-            throw ex;
+            return "";
         }
         finally {
             defaultMQAdminExt.shutdown();

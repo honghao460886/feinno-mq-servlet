@@ -42,7 +42,7 @@ public class TopicMonitorService extends AbstractMonitorService {
     @GET
     @Path("/list/{namesrvaddr}")
     @Produces(value = MediaType.APPLICATION_JSON)
-    public String queryClusterList(@PathParam("namesrvaddr") String namesrvaddr) throws Exception {
+    public String queryClusterList(@PathParam("namesrvaddr") String namesrvaddr) {
         DefaultMQAdminExt defaultMQAdminExt = getDefaultMQAdminExt();
         try {
             defaultMQAdminExt.setNamesrvAddr(namesrvaddr);
@@ -53,7 +53,7 @@ public class TopicMonitorService extends AbstractMonitorService {
         }
         catch (Exception ex) {
             LOGGER.error("TopicMonitorService.queryClusterList error :{}", ex);
-            throw ex;
+            return "";
         }
         finally {
             defaultMQAdminExt.shutdown();
@@ -63,7 +63,7 @@ public class TopicMonitorService extends AbstractMonitorService {
     @GET
     @Path("/route/{namesrvaddr}/{topicname}")
     @Produces(value = MediaType.APPLICATION_JSON)
-    public String queryTopicRoute(@PathParam("namesrvaddr") String namesrvaddr, @PathParam("topicname") String topicname) throws Exception {
+    public String queryTopicRoute(@PathParam("namesrvaddr") String namesrvaddr, @PathParam("topicname") String topicname) {
         DefaultMQAdminExt defaultMQAdminExt = getDefaultMQAdminExt();
         try {
             defaultMQAdminExt.setNamesrvAddr(namesrvaddr);
@@ -73,7 +73,7 @@ public class TopicMonitorService extends AbstractMonitorService {
         }
         catch (Exception ex) {
             LOGGER.error("TopicMonitorService.queryTopicRoute error :{}", ex);
-            throw ex;
+            return "";
         }
         finally {
             defaultMQAdminExt.shutdown();

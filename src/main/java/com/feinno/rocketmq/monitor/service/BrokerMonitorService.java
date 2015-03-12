@@ -44,7 +44,7 @@ public class BrokerMonitorService extends AbstractMonitorService {
     @Path("/status/{namesrvaddr}/{brokeraddr}/")
     @Produces(value = MediaType.APPLICATION_JSON)
     public String getClusterList(@PathParam("namesrvaddr") String namesrvaddr,
-            @PathParam("brokeraddr") String brokeraddr) throws Exception {
+            @PathParam("brokeraddr") String brokeraddr) {
         DefaultMQAdminExt defaultMQAdminExt = getDefaultMQAdminExt();
         try {
             defaultMQAdminExt.setNamesrvAddr(namesrvaddr);
@@ -55,7 +55,7 @@ public class BrokerMonitorService extends AbstractMonitorService {
         }
         catch (Exception ex) {
             LOGGER.error("BrokerMonitorService.getClusterList error :{}", ex);
-            throw ex;
+            return "";
         }
         finally {
             defaultMQAdminExt.shutdown();
