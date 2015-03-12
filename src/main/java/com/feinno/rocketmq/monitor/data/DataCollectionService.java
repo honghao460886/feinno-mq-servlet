@@ -13,7 +13,6 @@ import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -40,7 +39,6 @@ import com.alibaba.rocketmq.remoting.exception.RemotingTimeoutException;
 import com.alibaba.rocketmq.tools.admin.DefaultMQAdminExt;
 import com.feinno.rocketmq.monitor.database.Database;
 import com.feinno.rocketmq.monitor.database.DatabaseManager;
-import com.mysql.jdbc.log.LogFactory;
 
 
 /**

@@ -9,9 +9,6 @@
 
 package com.feinno.rocketmq.monitor.cluster.bean;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * ClassName:ClusterInfo <br/>

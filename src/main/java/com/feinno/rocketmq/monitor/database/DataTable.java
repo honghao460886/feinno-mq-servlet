@@ -46,7 +46,6 @@ public class DataTable {
 			this.rows = EMPTY_ROWS;
 		} else {
 			ResultSetMetaData meta = rs.getMetaData();
-			rows=new ArrayList();
 			name=meta.getTableName(1);
 			columns =new DataColumn[meta.getColumnCount()];
 			columnsNameIndex = new HashMap<String, Integer>(meta.getColumnCount());
