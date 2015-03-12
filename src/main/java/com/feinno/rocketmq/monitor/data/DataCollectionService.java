@@ -55,13 +55,12 @@ import com.mysql.jdbc.log.LogFactory;
  * @see
  */
 public class DataCollectionService {
-    private final static Timer timer_total = new Timer("MQDataCollection_Total_Thread", true);
-    private final static Timer timer_tps = new Timer("MQDataCollection_Tps_Thread", true);
+    private final static Timer timer = new Timer("MQDataCollection_Total_Thread", true);
     private final static Logger LOGGER = LoggerFactory.getLogger(DataCollectionService.class);
 
 
     public static void start() {
-        timer_total.schedule(new TimerTask() {
+        timer.schedule(new TimerTask() {
 
             @Override
             public void run() {
@@ -74,7 +73,7 @@ public class DataCollectionService {
             }
         }, 0, 24 * 60 * 1000);
 
-        timer_tps.schedule(new TimerTask() {
+        timer.schedule(new TimerTask() {
 
             @Override
             public void run() {
