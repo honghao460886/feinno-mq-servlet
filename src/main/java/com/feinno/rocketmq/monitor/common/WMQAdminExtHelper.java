@@ -9,8 +9,10 @@
 
 package com.feinno.rocketmq.monitor.common;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -25,6 +27,9 @@ import com.alibaba.rocketmq.client.exception.MQBrokerException;
 import com.alibaba.rocketmq.client.exception.MQClientException;
 import com.alibaba.rocketmq.common.MixAll;
 import com.alibaba.rocketmq.common.UtilAll;
+import com.alibaba.rocketmq.common.admin.ConsumeStats;
+import com.alibaba.rocketmq.common.admin.OffsetWrapper;
+import com.alibaba.rocketmq.common.message.MessageQueue;
 import com.alibaba.rocketmq.common.protocol.body.ClusterInfo;
 import com.alibaba.rocketmq.common.protocol.body.GroupList;
 import com.alibaba.rocketmq.common.protocol.body.KVTable;
@@ -37,6 +42,7 @@ import com.alibaba.rocketmq.remoting.exception.RemotingSendRequestException;
 import com.alibaba.rocketmq.remoting.exception.RemotingTimeoutException;
 import com.alibaba.rocketmq.tools.admin.DefaultMQAdminExt;
 import com.feinno.rocketmq.monitor.cluster.bean.WClusterListKeys;
+import com.feinno.rocketmq.monitor.consumer.bean.WConsumerProgressKeys;
 import com.feinno.rocketmq.monitor.topic.bean.WTopicListKeys;
 
 
@@ -237,5 +243,36 @@ public class WMQAdminExtHelper {
         TopicRouteData topicRouteData = defaultMQAdminExt.examineTopicRouteInfo(topic);
         String json = topicRouteData.toJson(true);
         return json;
+    }
+    
+    public static void consumerProgress(String group, DefaultMQAdminExt defaultMQAdminExt, List<Map<String, String>> list) throws RemotingException, MQClientException, InterruptedException, MQBrokerException {
+     // 查询特定consumer
+            ConsumeStats consumeStats = defaultMQAdminExt.examineConsumeStats(group);
+
+            List<MessageQueue> mqList = new LinkedList<MessageQueue>();
+            mqList.addAll(consumeStats.getOffsetTable().keySet());
+            Collections.sort(mqList);
+
+
+            long diffTotal = 0L;
+
+            for (MessageQueue mq : mqList) {
+                OffsetWrapper offsetWrapper = consumeStats.getOffsetTable().get(mq);
+
+                long diff = offsetWrapper.getBrokerOffset() - offsetWrapper.getConsumerOffset();
+                diffTotal += diff;
+                Map<String, String> map = new HashMap<String, String>();
+                map.put(WConsumerProgressKeys.TOPIC, UtilAll.frontStringAtLeast(mq.getTopic(), 32));
+                map.put(WConsumerProgressKeys.BROKER_NAME,UtilAll.frontStringAtLeast(mq.getBrokerName(), 32));
+                map.put(WConsumerProgressKeys.QUID, String.valueOf(mq.getQueueId()));
+                map.put(WConsumerProgressKeys.BROKER_OFFSET, String.valueOf(offsetWrapper.getBrokerOffset()));
+                map.put(WConsumerProgressKeys.CONSUMER_OFFSET, String.valueOf(offsetWrapper.getConsumerOffset()));
+                map.put(WConsumerProgressKeys.DIFF, String.valueOf(diff));
+                list.add(map);
+            }
+            Map<String, String> map = new HashMap<String, String>();
+            map.put(WConsumerProgressKeys.CONSUMER_TPS, String.valueOf(consumeStats.getConsumeTps()));
+            map.put(WConsumerProgressKeys.DIFF_TOTAL, String.valueOf(diffTotal));
+            list.add(map);
     }
 }
