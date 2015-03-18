@@ -253,14 +253,10 @@ public class WMQAdminExtHelper {
             mqList.addAll(consumeStats.getOffsetTable().keySet());
             Collections.sort(mqList);
 
-
-            long diffTotal = 0L;
-
             for (MessageQueue mq : mqList) {
                 OffsetWrapper offsetWrapper = consumeStats.getOffsetTable().get(mq);
 
                 long diff = offsetWrapper.getBrokerOffset() - offsetWrapper.getConsumerOffset();
-                diffTotal += diff;
                 Map<String, String> map = new HashMap<String, String>();
                 map.put(WConsumerProgressKeys.TOPIC, UtilAll.frontStringAtLeast(mq.getTopic(), 32));
                 map.put(WConsumerProgressKeys.BROKER_NAME,UtilAll.frontStringAtLeast(mq.getBrokerName(), 32));
@@ -270,9 +266,5 @@ public class WMQAdminExtHelper {
                 map.put(WConsumerProgressKeys.DIFF, String.valueOf(diff));
                 list.add(map);
             }
-            Map<String, String> map = new HashMap<String, String>();
-            map.put(WConsumerProgressKeys.CONSUMER_TPS, String.valueOf(consumeStats.getConsumeTps()));
-            map.put(WConsumerProgressKeys.DIFF_TOTAL, String.valueOf(diffTotal));
-            list.add(map);
     }
 }
