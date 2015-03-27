@@ -76,5 +76,23 @@ public class ConsumerMonitorService extends AbstractMonitorService {
             defaultMQAdminExt.shutdown();
         }
     }
+    
+    @GET
+    @Path("/deletesubgroup/{namesrvaddr}/{clustername}/{groupname}/")
+    @Produces(value = MediaType.APPLICATION_JSON)
+    public String deleteSubGroup(@PathParam("namesrvaddr") String namesrvaddr, @PathParam("clustername") String clustername, @PathParam("groupname") String groupname) {
+        DefaultMQAdminExt defaultMQAdminExt = getDefaultMQAdminExt();
+        try {
+            defaultMQAdminExt.setNamesrvAddr(namesrvaddr);
+            defaultMQAdminExt.start();
+            WMQAdminExtHelper.deleteSubGroup(defaultMQAdminExt, clustername, groupname);
+            return "sucess";
+        } catch (Exception ex) {
+            LOGGER.error("ConsumerMonitorService.deleteSubGroup error :{}", ex);
+            return "";
+        } finally {
+            defaultMQAdminExt.shutdown();
+        }
+    }
 }
 

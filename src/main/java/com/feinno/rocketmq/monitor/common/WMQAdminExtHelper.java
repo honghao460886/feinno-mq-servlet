@@ -9,20 +9,19 @@
 
 package com.feinno.rocketmq.monitor.common;
 
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Map.Entry;
+import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -61,9 +60,8 @@ import com.alibaba.rocketmq.remoting.exception.RemotingException;
 import com.alibaba.rocketmq.remoting.exception.RemotingSendRequestException;
 import com.alibaba.rocketmq.remoting.exception.RemotingTimeoutException;
 import com.alibaba.rocketmq.tools.admin.DefaultMQAdminExt;
-import com.alibaba.rocketmq.tools.admin.api.MessageTrack;
 import com.alibaba.rocketmq.tools.command.CommandUtil;
-import com.alibaba.rocketmq.tools.command.message.QueryMsgByIdSubCommand;
+import com.alibaba.rocketmq.tools.command.topic.DeleteTopicSubCommand;
 import com.feinno.rocketmq.monitor.cluster.bean.WClusterListKeys;
 import com.feinno.rocketmq.monitor.consumer.bean.WConsumerProgressKeys;
 import com.feinno.rocketmq.monitor.topic.bean.WTopicListKeys;
@@ -83,6 +81,8 @@ import com.feinno.rocketmq.monitor.topic.bean.WTopicListKeys;
 public class WMQAdminExtHelper {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(WMQAdminExtHelper.class);
+
+
     /**
      * queryClusterInfo:(这里用一句话描述这个方法的作用). <br/>
      * TODO(这里描述这个方法适用条件 – 可选).<br/>
@@ -254,44 +254,52 @@ public class WMQAdminExtHelper {
 
 
     public static void queryBrokerStatus(TreeMap<String, String> map, DefaultMQAdminExt defaultMQAdminExt,
-            String brokeraddr) throws RemotingConnectException, RemotingSendRequestException, RemotingTimeoutException, InterruptedException, MQBrokerException {
+            String brokeraddr) throws RemotingConnectException, RemotingSendRequestException,
+            RemotingTimeoutException, InterruptedException, MQBrokerException {
         KVTable kvTable = defaultMQAdminExt.fetchBrokerRuntimeStats(brokeraddr);
         // 为了排序
         map.putAll(kvTable.getTable());
     }
 
 
-    public static String queryTopicRoute(String topic, DefaultMQAdminExt defaultMQAdminExt) throws RemotingException, MQClientException, InterruptedException {
-        
+    public static String queryTopicRoute(String topic, DefaultMQAdminExt defaultMQAdminExt)
+            throws RemotingException, MQClientException, InterruptedException {
+
         TopicRouteData topicRouteData = defaultMQAdminExt.examineTopicRouteInfo(topic);
         String json = topicRouteData.toJson(true);
         return json;
     }
-    
-    public static void consumerProgress(String group, DefaultMQAdminExt defaultMQAdminExt, List<Map<String, String>> list) throws RemotingException, MQClientException, InterruptedException, MQBrokerException {
-     // 查询特定consumer
-            ConsumeStats consumeStats = defaultMQAdminExt.examineConsumeStats(group);
 
-            List<MessageQueue> mqList = new LinkedList<MessageQueue>();
-            mqList.addAll(consumeStats.getOffsetTable().keySet());
-            Collections.sort(mqList);
 
-            for (MessageQueue mq : mqList) {
-                OffsetWrapper offsetWrapper = consumeStats.getOffsetTable().get(mq);
+    public static void consumerProgress(String group, DefaultMQAdminExt defaultMQAdminExt,
+            List<Map<String, String>> list) throws RemotingException, MQClientException,
+            InterruptedException, MQBrokerException {
+        // 查询特定consumer
+        ConsumeStats consumeStats = defaultMQAdminExt.examineConsumeStats(group);
 
-                long diff = offsetWrapper.getBrokerOffset() - offsetWrapper.getConsumerOffset();
-                Map<String, String> map = new HashMap<String, String>();
-                map.put(WConsumerProgressKeys.TOPIC, UtilAll.frontStringAtLeast(mq.getTopic(), 32));
-                map.put(WConsumerProgressKeys.BROKER_NAME,UtilAll.frontStringAtLeast(mq.getBrokerName(), 32));
-                map.put(WConsumerProgressKeys.QUID, String.valueOf(mq.getQueueId()));
-                map.put(WConsumerProgressKeys.BROKER_OFFSET, String.valueOf(offsetWrapper.getBrokerOffset()));
-                map.put(WConsumerProgressKeys.CONSUMER_OFFSET, String.valueOf(offsetWrapper.getConsumerOffset()));
-                map.put(WConsumerProgressKeys.DIFF, String.valueOf(diff));
-                list.add(map);
-            }
+        List<MessageQueue> mqList = new LinkedList<MessageQueue>();
+        mqList.addAll(consumeStats.getOffsetTable().keySet());
+        Collections.sort(mqList);
+
+        for (MessageQueue mq : mqList) {
+            OffsetWrapper offsetWrapper = consumeStats.getOffsetTable().get(mq);
+
+            long diff = offsetWrapper.getBrokerOffset() - offsetWrapper.getConsumerOffset();
+            Map<String, String> map = new HashMap<String, String>();
+            map.put(WConsumerProgressKeys.TOPIC, UtilAll.frontStringAtLeast(mq.getTopic(), 32));
+            map.put(WConsumerProgressKeys.BROKER_NAME, UtilAll.frontStringAtLeast(mq.getBrokerName(), 32));
+            map.put(WConsumerProgressKeys.QUID, String.valueOf(mq.getQueueId()));
+            map.put(WConsumerProgressKeys.BROKER_OFFSET, String.valueOf(offsetWrapper.getBrokerOffset()));
+            map.put(WConsumerProgressKeys.CONSUMER_OFFSET, String.valueOf(offsetWrapper.getConsumerOffset()));
+            map.put(WConsumerProgressKeys.DIFF, String.valueOf(diff));
+            list.add(map);
+        }
     }
-    
-    public static Map<String, String> createTopic(DefaultMQAdminExt defaultMQAdminExt, String clustername, String topicname) throws InterruptedException, MQBrokerException, RemotingException, MQClientException {
+
+
+    public static Map<String, String> createTopic(DefaultMQAdminExt defaultMQAdminExt, String clustername,
+            String topicname) throws InterruptedException, MQBrokerException, RemotingException,
+            MQClientException {
         TopicConfig topicConfig = new TopicConfig();
         topicConfig.setReadQueueNums(8);
         topicConfig.setWriteQueueNums(8);
@@ -300,8 +308,7 @@ public class WMQAdminExtHelper {
         topicConfig.setTopicSysFlag(0);
         topicConfig.setOrder(false);
         topicConfig.setTopicFilterType(TopicFilterType.SINGLE_TAG);
-        Set<String> masterSet =
-                CommandUtil.fetchMasterAddrByClusterName(defaultMQAdminExt, clustername);
+        Set<String> masterSet = CommandUtil.fetchMasterAddrByClusterName(defaultMQAdminExt, clustername);
         for (String addr : masterSet) {
             defaultMQAdminExt.createAndUpdateTopicConfig(addr, topicConfig);
             if (LOGGER.isInfoEnabled()) {
@@ -320,7 +327,9 @@ public class WMQAdminExtHelper {
     }
 
 
-    public static Map<String, String> createSubGroup(DefaultMQAdminExt defaultMQAdminExt, String clustername, String groupname) throws RemotingException, MQBrokerException, InterruptedException, MQClientException {
+    public static Map<String, String> createSubGroup(DefaultMQAdminExt defaultMQAdminExt, String clustername,
+            String groupname) throws RemotingException, MQBrokerException, InterruptedException,
+            MQClientException {
         SubscriptionGroupConfig subscriptionGroupConfig = new SubscriptionGroupConfig();
         subscriptionGroupConfig.setConsumeBroadcastEnable(false);
         subscriptionGroupConfig.setConsumeFromMinEnable(false);
@@ -346,13 +355,16 @@ public class WMQAdminExtHelper {
         map.put("retryQueueNums", String.valueOf(subscriptionGroupConfig.getRetryQueueNums()));
         map.put("retryMaxTimes", String.valueOf(subscriptionGroupConfig.getRetryMaxTimes()));
         map.put("brokerId", String.valueOf(subscriptionGroupConfig.getBrokerId()));
-        map.put("whichBrokerWhenConsumeSlowly", String.valueOf(subscriptionGroupConfig.getWhichBrokerWhenConsumeSlowly()));
+        map.put("whichBrokerWhenConsumeSlowly",
+            String.valueOf(subscriptionGroupConfig.getWhichBrokerWhenConsumeSlowly()));
         return map;
     }
 
 
-    public static void updateBrokerConfig(DefaultMQAdminExt defaultMQAdminExt, String clustername, String key, String value) throws RemotingConnectException, RemotingSendRequestException, RemotingTimeoutException, UnsupportedEncodingException, InterruptedException, MQBrokerException {
-        
+    public static void updateBrokerConfig(DefaultMQAdminExt defaultMQAdminExt, String clustername,
+            String key, String value) throws RemotingConnectException, RemotingSendRequestException,
+            RemotingTimeoutException, UnsupportedEncodingException, InterruptedException, MQBrokerException {
+
         Properties properties = new Properties();
         properties.put(key, value);
         Set<String> masterSet = CommandUtil.fetchMasterAddrByClusterName(defaultMQAdminExt, clustername);
@@ -363,13 +375,14 @@ public class WMQAdminExtHelper {
             }
         }
         return;
-        
+
     }
 
 
     public static void examineProducerConnectionInfo(DefaultMQAdminExt defaultMQAdminExt, String topic,
-            String group) throws RemotingException, MQClientException, InterruptedException, MQBrokerException {
-        
+            String group) throws RemotingException, MQClientException, InterruptedException,
+            MQBrokerException {
+
         ProducerConnection pc = defaultMQAdminExt.examineProducerConnectionInfo(group, topic);
         int i = 1;
         for (Connection conn : pc.getConnectionSet()) {
@@ -381,12 +394,14 @@ public class WMQAdminExtHelper {
                 MQVersion.getVersionDesc(conn.getVersion())//
                 );
         }
-        
+
     }
 
 
-    public static List<Map<String, String>> examineConsumerConnectionInfo(DefaultMQAdminExt defaultMQAdminExt, String group) throws InterruptedException, MQBrokerException, RemotingException, MQClientException {
-        
+    public static List<Map<String, String>> examineConsumerConnectionInfo(
+            DefaultMQAdminExt defaultMQAdminExt, String group) throws InterruptedException,
+            MQBrokerException, RemotingException, MQClientException {
+
         ConsumerConnection cc = defaultMQAdminExt.examineConsumerConnectionInfo(group);
         List<Map<String, String>> list = new ArrayList<Map<String, String>>();
         // 打印连接
@@ -404,8 +419,9 @@ public class WMQAdminExtHelper {
     }
 
 
-    public static Map<String, String > queryById(DefaultMQAdminExt defaultMQAdminExt, String msgid) throws RemotingException, MQBrokerException, InterruptedException, MQClientException {
-        Map<String, String > map = new HashMap<String, String>();
+    public static Map<String, String> queryById(DefaultMQAdminExt defaultMQAdminExt, String msgid)
+            throws RemotingException, MQBrokerException, InterruptedException, MQClientException {
+        Map<String, String> map = new HashMap<String, String>();
         MessageExt msg = defaultMQAdminExt.viewMessage(msgid);
         map.put("Topic", msg.getTopic());
         map.put("Tags", msg.getTags());
@@ -424,8 +440,9 @@ public class WMQAdminExtHelper {
     }
 
 
-    public static List<Map<String, String>> queryByKey(DefaultMQAdminExt defaultMQAdminExt, String key, String topic) throws MQClientException, InterruptedException {
-        List<Map<String, String>> list = new ArrayList<Map<String,String>>();
+    public static List<Map<String, String>> queryByKey(DefaultMQAdminExt defaultMQAdminExt, String key,
+            String topic) throws MQClientException, InterruptedException {
+        List<Map<String, String>> list = new ArrayList<Map<String, String>>();
         QueryResult queryResult = defaultMQAdminExt.queryMessage(topic, key, 64, 0, Long.MAX_VALUE);
         for (MessageExt msg : queryResult.getMessageList()) {
             Map<String, String> map = new HashMap<String, String>();
@@ -439,10 +456,11 @@ public class WMQAdminExtHelper {
 
 
     public static Map<String, String> queryByOffset(DefaultMQAdminExt defaultMQAdminExt, String brokername,
-            String topic, String queueid, String offset) throws MQClientException, RemotingException, MQBrokerException, InterruptedException, IOException {
+            String topic, String queueid, String offset) throws MQClientException, RemotingException,
+            MQBrokerException, InterruptedException, IOException {
         DefaultMQPullConsumer defaultMQPullConsumer = new DefaultMQPullConsumer(MixAll.TOOLS_CONSUMER_GROUP);
         Map<String, String> map = null;
-        try{
+        try {
             MessageQueue mq = new MessageQueue();
             mq.setTopic(topic);
             mq.setBrokerName(brokername);
@@ -467,5 +485,51 @@ public class WMQAdminExtHelper {
         }
         return map;
     }
-    
+
+
+    public static void deleteTopic(DefaultMQAdminExt defaultMQAdminExt, String clustername, String topicname)
+            throws RemotingException, MQBrokerException, InterruptedException, MQClientException {
+        // 删除 broker 上的 topic 信息
+        Set<String> masterSet = CommandUtil.fetchMasterAddrByClusterName(defaultMQAdminExt, clustername);
+        defaultMQAdminExt.deleteTopicInBroker(masterSet, topicname);
+        System.out.printf("delete topic [%s] from cluster [%s] success.\n", topicname, clustername);
+        // 删除 NameServer 上的 topic 信息
+        Set<String> nameServerSet = null;
+        if (defaultMQAdminExt.getNamesrvAddr() != null) {
+            String[] ns = defaultMQAdminExt.getNamesrvAddr().trim().split(";");
+            nameServerSet = new HashSet<String>(Arrays.asList(ns));
+        }
+        // 删除 NameServer 上的 topic 信息
+        defaultMQAdminExt.deleteTopicInNameServer(nameServerSet, topicname);
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info(String.format("delete topic [%s] from NameServer success.", topicname));
+        }
+    }
+
+
+    public static void deleteSubGroup(DefaultMQAdminExt defaultMQAdminExt, String clustername,
+            String groupname) throws RemotingException, MQBrokerException, InterruptedException,
+            MQClientException {
+
+        Set<String> masterSet = CommandUtil.fetchMasterAddrByClusterName(defaultMQAdminExt, clustername);
+        for (String master : masterSet) {
+            defaultMQAdminExt.deleteSubscriptionGroup(master, clustername);
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info(String.format(
+                    "delete subscription group [%s] from broker [%s] in cluster [%s] success.\n", groupname,
+                    master, clustername));
+            }
+        }
+        // 删除%RETRY%打头的Topic
+        try {
+            DeleteTopicSubCommand.deleteTopic(defaultMQAdminExt, clustername, MixAll.RETRY_GROUP_TOPIC_PREFIX
+                    + groupname);
+            DeleteTopicSubCommand.deleteTopic(defaultMQAdminExt, clustername, MixAll.DLQ_GROUP_TOPIC_PREFIX
+                    + groupname);
+        }
+        catch (Exception e) {
+        }
+        return;
+    }
+
 }

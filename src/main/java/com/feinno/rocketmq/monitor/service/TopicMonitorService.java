@@ -99,6 +99,26 @@ public class TopicMonitorService extends AbstractMonitorService {
             defaultMQAdminExt.shutdown();
         }
     }
+    
+    @GET
+    @Path("/delete/{namesrvaddr}/{clustername}/{topicname}")
+    @Produces(value = MediaType.APPLICATION_JSON)
+    public String deleteTopic(@PathParam("namesrvaddr") String namesrvaddr, @PathParam("clustername") String clustername, @PathParam("topicname") String topicname) {
+        DefaultMQAdminExt defaultMQAdminExt = getDefaultMQAdminExt();
+        try {
+            defaultMQAdminExt.setNamesrvAddr(namesrvaddr);
+            defaultMQAdminExt.start();
+            WMQAdminExtHelper.deleteTopic(defaultMQAdminExt, clustername, topicname);
+            return "sucess";
+        }
+        catch (Exception ex) {
+            LOGGER.error("TopicMonitorService.deleteTopic error :{}", ex);
+            return "";
+        }
+        finally {
+            defaultMQAdminExt.shutdown();
+        }
+    }
 
 }
 
