@@ -58,5 +58,23 @@ public class ConsumerMonitorService extends AbstractMonitorService {
             defaultMQAdminExt.shutdown();
         }
     }
+    
+    @GET
+    @Path("/addsubgroup/{namesrvaddr}/{clustername}/{groupname}/")
+    @Produces(value = MediaType.APPLICATION_JSON)
+    public String createSubGroup(@PathParam("namesrvaddr") String namesrvaddr, @PathParam("clustername") String clustername, @PathParam("groupname") String groupname) {
+        DefaultMQAdminExt defaultMQAdminExt = getDefaultMQAdminExt();
+        try {
+            defaultMQAdminExt.setNamesrvAddr(namesrvaddr);
+            defaultMQAdminExt.start();
+            Map<String, String> map = WMQAdminExtHelper.createSubGroup(defaultMQAdminExt, clustername, groupname);
+            return JSON.toJSONString(map);
+        } catch (Exception ex) {
+            LOGGER.error("ConsumerMonitorService.createSubGroup error :{}", ex);
+            return "";
+        } finally {
+            defaultMQAdminExt.shutdown();
+        }
+    }
 }
 

@@ -28,4 +28,3 @@ public abstract class AbstractMonitorService {
         return defaultMQAdminExt;
     }
 }
-

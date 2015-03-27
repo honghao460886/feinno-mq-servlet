@@ -11,10 +11,12 @@ package com.feinno.rocketmq.monitor.service;
 
 import java.util.TreeMap;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
 import org.slf4j.Logger;
@@ -40,6 +42,8 @@ import com.feinno.rocketmq.monitor.common.WMQAdminExtHelper;
 public class BrokerMonitorService extends AbstractMonitorService {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(BrokerMonitorService.class);
+    @Context
+    HttpServletRequest request;
     @GET
     @Path("/status/{namesrvaddr}/{brokeraddr}/")
     @Produces(value = MediaType.APPLICATION_JSON)
@@ -55,6 +59,26 @@ public class BrokerMonitorService extends AbstractMonitorService {
         }
         catch (Exception ex) {
             LOGGER.error("BrokerMonitorService.getClusterList error :{}", ex);
+            return "";
+        }
+        finally {
+            defaultMQAdminExt.shutdown();
+        }
+    }
+    
+    @GET
+    @Path("/config/update/{namesrvaddr}/{clustername}/{key}/{value}")
+    @Produces(value = MediaType.APPLICATION_JSON)
+    public String updateBrokerConfig(@PathParam("namesrvaddr") String namesrvaddr, @PathParam("clustername") String clustername, @PathParam("key") String key, @PathParam("value") String value) {
+        DefaultMQAdminExt defaultMQAdminExt = getDefaultMQAdminExt();
+        try {
+            defaultMQAdminExt.setNamesrvAddr(namesrvaddr);
+            defaultMQAdminExt.start();
+            WMQAdminExtHelper.updateBrokerConfig(defaultMQAdminExt, clustername, key, value);
+            return "sucess";
+        }
+        catch (Exception ex) {
+            LOGGER.error("BrokerMonitorService.updateBrokerConfig error :{}", ex);
             return "";
         }
         finally {

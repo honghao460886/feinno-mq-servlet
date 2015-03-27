@@ -79,6 +79,26 @@ public class TopicMonitorService extends AbstractMonitorService {
             defaultMQAdminExt.shutdown();
         }
     }
+    
+    @GET
+    @Path("/create/{namesrvaddr}/{clustername}/{topicname}")
+    @Produces(value = MediaType.APPLICATION_JSON)
+    public String createTopic(@PathParam("namesrvaddr") String namesrvaddr, @PathParam("clustername") String clustername, @PathParam("topicname") String topicname) {
+        DefaultMQAdminExt defaultMQAdminExt = getDefaultMQAdminExt();
+        try {
+            defaultMQAdminExt.setNamesrvAddr(namesrvaddr);
+            defaultMQAdminExt.start();
+            Map<String, String> map = WMQAdminExtHelper.createTopic(defaultMQAdminExt, clustername, topicname);
+            return JSON.toJSONString(map);
+        }
+        catch (Exception ex) {
+            LOGGER.error("TopicMonitorService.createTopic error :{}", ex);
+            return "";
+        }
+        finally {
+            defaultMQAdminExt.shutdown();
+        }
+    }
 
 }
 
