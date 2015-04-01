@@ -450,6 +450,7 @@ public class WMQAdminExtHelper {
             map.put("QID", String.valueOf(msg.getQueueId()));
             map.put("Offset", String.valueOf(msg.getQueueOffset()));
             map.put("StoreTimestamp", UtilAll.timeMillisToHumanString2(msg.getStoreTimestamp()));
+            map.put("Tags", msg.getTags());
             list.add(map);
         }
         return list;
