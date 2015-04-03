@@ -312,7 +312,7 @@ public class WMQAdminExtHelper {
         for (String addr : masterSet) {
             defaultMQAdminExt.createAndUpdateTopicConfig(addr, topicConfig);
             if (LOGGER.isInfoEnabled()) {
-                LOGGER.info(String.format("create topic to %s success."), addr);
+                LOGGER.info(String.format("create topic to %s success.", addr));
             }
         }
         Map<String, String> map = new HashMap<String, String>();
@@ -494,7 +494,9 @@ public class WMQAdminExtHelper {
         // 删除 broker 上的 topic 信息
         Set<String> masterSet = CommandUtil.fetchMasterAddrByClusterName(defaultMQAdminExt, clustername);
         defaultMQAdminExt.deleteTopicInBroker(masterSet, topicname);
-        System.out.printf("delete topic [%s] from cluster [%s] success.\n", topicname, clustername);
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info(String.format("delete topic [%s] from cluster [%s] success.", topicname, clustername));
+        }
         // 删除 NameServer 上的 topic 信息
         Set<String> nameServerSet = null;
         if (defaultMQAdminExt.getNamesrvAddr() != null) {
