@@ -9,6 +9,7 @@
 
 package com.feinno.rocketmq.monitor.service;
 
+import java.util.Properties;
 import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletRequest;
@@ -79,6 +80,31 @@ public class BrokerMonitorService extends AbstractMonitorService {
         }
         catch (Exception ex) {
             LOGGER.error("BrokerMonitorService.updateBrokerConfig error :{}", ex);
+            return "";
+        }
+        finally {
+            defaultMQAdminExt.shutdown();
+        }
+    }
+    
+    @GET
+    @Path("/config/update/{namesrvaddr}/{brokeraddr}/{key}/{value}")
+    @Produces(value = MediaType.APPLICATION_JSON)
+    public String updateBrokerConfigByBrokerAddr(@PathParam("namesrvaddr") String namesrvaddr, @PathParam("brokeraddr") String brokeraddr, @PathParam("key") String key, @PathParam("value") String value) {
+        DefaultMQAdminExt defaultMQAdminExt = getDefaultMQAdminExt();
+        try {
+            defaultMQAdminExt.setNamesrvAddr(namesrvaddr);
+            defaultMQAdminExt.start();
+            Properties properties = new Properties();
+            properties.put(key, value);
+            defaultMQAdminExt.updateBrokerConfig(brokeraddr, properties);
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info(String.format("update broker config success, %s", brokeraddr));
+            }
+            return "sucess";
+        }
+        catch (Exception ex) {
+            LOGGER.error("BrokerMonitorService.updateBrokerConfigByBrokerAddr error :{}", ex);
             return "";
         }
         finally {
